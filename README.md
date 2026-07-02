@@ -1,9 +1,13 @@
 # Eternity Matrimony
 > A premium, security-first matchmaking platform designed for modern professionals to discover authentic connections through intuitive filtering and real-time interaction control.
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://eternity-snowy.vercel.app/)
 [![MIT License](https://img.shields.io/github/license/hritikbytes/eternity?style=for-the-badge&color=B08D57)](https://github.com/hritikbytes/eternity/blob/main/LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/hritikbytes/eternity?style=for-the-badge&color=B08D57)](https://github.com/hritikbytes/eternity/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/hritikbytes/eternity?style=for-the-badge&color=B08D57)](https://github.com/hritikbytes/eternity/network/members)
+
+🔗 **Live URL:** [eternity-snowy.vercel.app](https://eternity-snowy.vercel.app/)
+
 
 ![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
