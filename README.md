@@ -1,494 +1,150 @@
 # Eternity Matrimony
 
-> A full-stack matchmaking web application built to explore profile discovery, structured onboarding, secure connection workflows, and server-side authorization.
+A full-stack matchmaking web application built with Next.js, Supabase, and PostgreSQL. It allows users to register, build a structured multi-step profile, discover compatible matches through granular filters, and send bi-directional connection requests.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://eternity-snowy.vercel.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-B08D57?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
-
-**Live application:** https://eternity-snowy.vercel.app/
+**Live Demo:** https://eternity-snowy.vercel.app  
+**Status:** Personal project / deployed demo
 
 ---
 
-## Overview
+## Preview
 
-Eternity Matrimony is an independently developed full-stack project built with Next.js, TypeScript, Supabase, and PostgreSQL.
-
-The project explores how a modern matchmaking application can handle detailed user profiles, multi-parameter discovery, authentication, authorization, and connection requests while keeping sensitive operations on the server.
-
-It was built as a personal project to strengthen full-stack development skills and experiment with application architecture, database security, validation, and responsive UI design.
-
----
-
-## 📸 Preview
-
-| Home Page | Mobile Responsive |
+| Desktop | Mobile |
 |:---:|:---:|
-| ![Eternity Matrimony desktop preview](./screenshots/home.png) | ![Eternity Matrimony mobile preview](./screenshots/mobile.png) |
+| <a href="https://eternity-snowy.vercel.app"><img src="./screenshots/home.png" alt="Eternity Matrimony desktop preview" width="100%"></a> | <a href="https://eternity-snowy.vercel.app"><img src="./screenshots/mobile.png" alt="Eternity Matrimony mobile preview" width="100%"></a> |
 
 ---
 
-## ✨ Core Features
+## What It Does
 
-### 👤 Profile & Onboarding
-
-- Structured profile creation flow
-- Personal, professional, and lifestyle information
-- Client-side form handling with React Hook Form
-- Schema validation with Zod
-- Server-side validation before database mutations
-- Cloudinary-based profile media management
-
-### 🔎 Profile Discovery
-
-Users can discover profiles using multiple search parameters:
-
-- Location
-- Age range
-- Community
-- Education
-- Income tier
-- Marital status
-
-Search results are rendered through the Next.js application and backed by PostgreSQL queries.
-
-### 🤝 Connection Requests
-
-The application uses an explicit connection lifecycle:
-
-```text
-Pending
-   │
-   ├── Accept ──────► Accepted
-   │
-   ├── Reject ──────► Rejected
-   │
-   └── Cancel ──────► Cancelled
-```
-
-Connection state is persisted in PostgreSQL and validated server-side before mutations are performed.
-
-### 🔐 Authentication & Authorization
-
-- Supabase Authentication
-- Server-side session verification
-- Protected application routes
-- Authenticated dashboard access
-- Authorization checks for user actions
-- PostgreSQL Row Level Security (RLS)
-
-### 🎨 Responsive UI
-
-- Responsive desktop and mobile layouts
-- Dark and light theme support
-- Tailwind CSS v4
-- OKLCH-based color system
-- Framer Motion animations
-- Loading and shimmer states
-- Toast notifications with Sonner
-- Reusable UI components
+- **Multi-Step Profile Onboarding (`/profile/setup`):** 3-stage profile setup (Personal, Professional, Lifestyle) validated with React Hook Form & Zod, supporting Cloudinary image uploads.
+- **Profile Discovery & Search (`/search` & `/dashboard`):** Filter profiles by age range, religion, community, education, income bracket, and location with server-side query construction.
+- **Connection Workflow (`/requests`):** State-machine lifecycle for connection requests (`pending` ➔ `accepted`, `rejected`, or `cancelled`) with mutual authorization guards.
+- **Role-Based Admin Panel (`/admin`):** Overview of registered users, premium tier toggles, user search, and moderation actions restricted to admin role.
+- **Auth & Route Protection:** Email/password authentication via Supabase Auth. Route guarding and cookie session synchronization handled by Next.js 16 request proxy (`src/proxy.ts`).
+- **Landing & Discovery Pages:**
+  - `/` — Hero banner, verified member showcase, couple testimonials, and trust indicators.
+  - `/how-it-works` — 3-step walkthrough and platform verification standards.
+  - `/success-stories` — Story highlights and platform statistics.
 
 ---
 
-## 🏗️ Architecture
+## Implementation Details
 
-The project uses the Next.js App Router with Supabase handling authentication and PostgreSQL providing the primary data layer.
+### 1. Bidirectional Connection Request Lifecycle
+Rather than treating connections as simple boolean flags, the application models requests through explicit states:
+- `pending`: Request sent; sender can cancel, receiver can accept or reject.
+- `accepted`: Mutual connection established.
+- `rejected` / `cancelled`: Terminal states preventing duplicate pending requests.
 
-```text
-                         ┌─────────────────────┐
-                         │       Browser       │
-                         │   React / Next.js   │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │     Next.js 16      │
-                         │     App Router      │
-                         │                     │
-                         │ Server Components   │
-                         │ Server Actions      │
-                         │ Request Proxy (proxy.ts) │
-                         └──────────┬──────────┘
-                                    │
-                    ┌───────────────┼────────────────┐
-                    │               │                │
-                    ▼               ▼                ▼
-             ┌───────────┐   ┌────────────┐   ┌─────────────┐
-             │ Supabase  │   │ PostgreSQL │   │ Cloudinary  │
-             │   Auth    │   │    + RLS   │   │    Media    │
-             └───────────┘   └────────────┘   └─────────────┘
-                                    │
-                                    ▼
-                             ┌────────────┐
-                             │   Vercel   │
-                             └────────────┘
-```
+The server action (`updateInterestStatus`) verifies user ownership before allowing state mutations: only the original sender can cancel a request, and only the recipient can accept or reject it. Furthermore, `sendInterest` checks for reverse requests (`sender_id = receiver AND receiver_id = sender`) in PostgreSQL to prevent duplicate or conflicting invitations.
 
-### Request & Authorization Flow
+### 2. Dynamic SQL Query Construction & Pattern Sanitization
+The search engine (`searchProfiles`) converts user criteria into Supabase PostgreSQL queries on the server:
+- Converts human age intervals (e.g. 21–30) into exact ISO date-of-birth boundaries using `lte` and `gte`.
+- Escapes special `LIKE` characters (`%`, `_`, `\`) on free-text city inputs to prevent pattern-matching injection.
+- Implements server-side pagination with exact total counts to keep page payloads minimal.
 
-```text
-User Interaction
-       │
-       ▼
-Next.js UI
-       │
-       ▼
-Server Action / Route
-       │
-       ├── Verify Supabase Session
-       │
-       ├── Validate Request with Zod
-       │
-       ├── Check Authorization
-       │
-       ▼
-PostgreSQL
-       │
-       ├── Row Level Security
-       │
-       ▼
-Database Mutation
-       │
-       ▼
-revalidatePath()
-       │
-       ▼
-Updated Server UI
-```
+### 3. Next.js 16 Request Proxy & Session Sync
+Under Next.js 16, route protection and session refreshing are managed via `src/proxy.ts` using `@supabase/ssr`. Unauthenticated requests to protected prefixes (`/dashboard`, `/profile`, `/search`, `/requests`, `/admin`) are redirected to `/login?next=...` while session cookies are refreshed across response headers without client-side waterfalls or React re-renders.
 
 ---
 
-## 🔐 Security Approach
+## Tech Stack
 
-The project treats client-side validation as a user-experience feature rather than a security boundary.
-
-### Server-Side Validation
-
-User-submitted data is validated with Zod before database operations.
-
-```text
-Client Input
-     ↓
-Zod Validation
-     ↓
-Authenticated Session
-     ↓
-Authorization Check
-     ↓
-Database Operation
-```
-
-### Authentication
-
-Supabase Authentication manages user identity and sessions.
-
-Server-side operations verify the active authenticated user before allowing protected mutations.
-
-### PostgreSQL Row Level Security
-
-PostgreSQL RLS provides database-level access control in addition to application-level authorization.
-
-This helps ensure that authenticated users can only access or modify records allowed by the configured database policies.
-
-### Route Protection
-
-Application areas such as:
-
-```text
-/dashboard
-/profile
-/search
-/requests
-```
-
-are protected through authentication and authorization checks.
+- **Framework:** Next.js 16 (App Router, Server Actions, Request Proxy)
+- **Frontend:** React 19, TypeScript, Tailwind CSS v4 (OKLCH color system)
+- **UI Primitives:** Base UI / Radix-compatible primitives, Framer Motion, Lucide React, Sonner
+- **Forms & Validation:** React Hook Form, Zod
+- **Backend & Database:** Supabase (Auth, PostgreSQL, Row Level Security)
+- **Media:** Cloudinary (via `next-cloudinary`)
+- **Deployment:** Vercel
 
 ---
 
-## 🧠 Engineering Decisions
-
-### Server-side validation
-
-Client-side validation can be bypassed, so important profile and connection operations are validated again on the server before reaching the database.
-
-This creates a clear boundary between user input and database mutations.
-
-### Supabase + PostgreSQL RLS
-
-Supabase provides authentication and PostgreSQL infrastructure while RLS adds database-level authorization policies.
-
-This avoids relying entirely on frontend route protection for sensitive data access.
-
-### Server Actions for mutations
-
-State-changing operations are handled through server-side application logic so authentication, validation, authorization, and database mutations can be performed in a controlled environment.
-
-### Explicit connection states
-
-Connection requests use explicit states instead of a simple boolean relationship:
+## Project Structure
 
 ```text
-pending
-accepted
-rejected
-cancelled
-```
-
-This makes the lifecycle easier to reason about and allows different actions depending on the current state.
-
-### Cache revalidation
-
-After relevant mutations, `revalidatePath()` is used to invalidate affected routes and ensure subsequent server renders reflect updated connection state.
-
-This avoids depending on continuous client-side polling for basic state synchronization.
-
----
-
-## 🎨 UI & Design
-
-The interface uses a custom visual system built with Tailwind CSS v4.
-
-### Design System
-
-- OKLCH-based color definitions
-- Dark/light theme support
-- Responsive layouts
-- Reusable UI primitives
-- Consistent spacing and typography
-
-### Interaction
-
-- Framer Motion animations
-- Hover and focus transitions
-- Loading/shimmer states
-- Toast notifications
-- Responsive navigation
-- Mobile-specific layout adjustments
-
-The visual direction focuses on creating a premium matchmaking experience while keeping the interface responsive and functional across screen sizes.
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-
-- **Next.js 16** — App Router
-- **React 19**
-- **TypeScript**
-- **Tailwind CSS v4**
-- **Framer Motion**
-- **Lucide React**
-- **Base UI primitives**
-- **Sonner**
-
-### Backend & Database
-
-- **Next.js Server Actions / Route Handlers**
-- **Supabase**
-- **PostgreSQL**
-- **PostgreSQL Row Level Security**
-- **Supabase Auth / SSR**
-
-### Forms & Validation
-
-- **React Hook Form**
-- **Zod**
-
-### Media
-
-- **Cloudinary**
-
-### Development & Deployment
-
-- **ESLint**
-- **Git / GitHub**
-- **Vercel**
-
----
-
-## 📁 Project Structure
-
-```text
-eternity/
-│
-├── public/
-│
-├── screenshots/
-│   ├── home.png
-│   └── mobile.png
-│
+├── public/                 # Static assets, hero visuals, default avatar SVG
+├── screenshots/            # Desktop and mobile UI previews
 ├── src/
 │   ├── app/
-│   │   ├── dashboard/
-│   │   ├── profile/
-│   │   ├── search/
-│   │   ├── requests/
-│   │   └── ...
-│   │
-│   ├── components/
+│   │   ├── (auth)/         # /login, /signup, /forgot-password
+│   │   ├── (dashboard)/    # /dashboard, /profile, /search, /requests
+│   │   ├── admin/          # Admin stats & user management
+│   │   ├── api/auth/       # Supabase auth callback
+│   │   ├── how-it-works/   # Platform process explainer
+│   │   ├── success-stories/# Testimonials page
+│   │   ├── globals.css     # Tailwind v4 OKLCH theme definitions
+│   │   └── page.tsx        # Public landing page
+│   ├── components/         # Shared navbar, footer, avatar, and UI primitives
 │   ├── features/
+│   │   ├── admin/          # Admin queries & user table
+│   │   ├── auth/           # Auth server actions & forms
+│   │   ├── dashboard/      # Matches grid & profile card
+│   │   ├── interests/      # Connection request lifecycle actions & list
+│   │   ├── landing/        # Hero, showcase, and social proof components
+│   │   ├── profiles/       # Multi-step profile form & profile actions
+│   │   └── search/         # Filter sidebar & dynamic query actions
 │   ├── lib/
-│   └── proxy.ts
-│
-├── .env.example
-├── next.config.*
-├── package.json
-├── tsconfig.json
-└── README.md
+│   │   ├── supabase/       # Browser client, server client, and database types
+│   │   └── utils.ts        # Tailwind merge utility
+│   └── proxy.ts            # Next.js 16 request proxy & route protection
 ```
 
 ---
 
-## 📦 Installation & Setup
+## Local Development
 
-### Prerequisites
-
-- Node.js 18+
-- npm
-- Supabase project
-- Cloudinary account
-
-### 1. Clone the repository
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/hritikbytes/eternity.git
 cd eternity
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Configure environment variables
+### 2. Configure Environment Variables
 
 Create a `.env.local` file based on `.env.example`:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
-
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+```bash
+cp .env.example .env.local
 ```
 
-Never commit `.env.local` or production credentials to the repository.
+Fill in your credentials in `.env.local`:
 
-### 4. Start the development server
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-upload-preset
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+```
+
+### 3. Run the Dev Server
 
 ```bash
 npm run dev
 ```
 
-Open:
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```text
-http://localhost:3000
+To test the production build:
+
+```bash
+npm run build
+npm run start
 ```
 
 ---
 
-## 🔧 Environment Variables
-
-| Variable | Purpose | Required |
-|---|---|:---:|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase client key | Yes |
-| `NEXT_PUBLIC_SITE_URL` | Application URL | Yes |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud identifier | Yes |
-| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Cloudinary upload preset | Yes |
-| `CLOUDINARY_API_KEY` | Cloudinary API access | Yes |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | Yes |
-
----
-
-## 📋 Application Flow
-
-```text
-                         Landing Page
-                              │
-                ┌─────────────┴─────────────┐
-                ▼                           ▼
-          Create Profile              Discover Profiles
-                │                           │
-                ▼                           ▼
-          Profile Setup                Search Filters
-                │                           │
-                └─────────────┬─────────────┘
-                              ▼
-                        View Profile
-                              │
-                              ▼
-                  Send Connection Request
-                              │
-                              ▼
-                          Pending
-                              │
-                ┌─────────────┼─────────────┐
-                ▼             ▼             ▼
-             Accepted      Rejected      Cancelled
-```
-
----
-
-## 🧪 Future Improvements
-
-The current project can be extended with:
-
-- [ ] Automated unit and integration tests
-- [ ] End-to-end testing with Playwright
-- [ ] Connection notifications
-- [ ] Messaging between accepted connections
-- [ ] Saved searches and profiles
-- [ ] Advanced compatibility matching
-- [ ] Improved profile verification
-- [ ] Enhanced admin moderation
-- [ ] Search and database query optimization
-- [ ] CI checks for linting, testing, and production builds
-- [ ] Error monitoring and observability
-
-These items represent future development rather than functionality currently claimed as implemented.
-
----
-
-## 📊 Project Status
-
-**Status:** Personal project / deployed demo
-
-Eternity Matrimony is an independently developed project created to explore full-stack web application development using Next.js, TypeScript, Supabase, PostgreSQL, and Cloudinary.
-
-The application is deployed on Vercel for demonstration purposes.
-
----
-
-## 👨‍💻 Developer
+## Author
 
 **Hritik Sharma**
-
-Web Developer focused on React, Next.js, TypeScript, and modern full-stack web applications.
-
-- **GitHub:** [@hritikbytes](https://github.com/hritikbytes)
-- **LinkedIn:** [linkedin.com/in/hritiksharma0608](https://www.linkedin.com/in/hritiksharma0608/)
-- **Email:** [hritiksharma.0608@gmail.com](mailto:hritiksharma.0608@gmail.com)
-
----
-
-<div align="center">
-
-**Built by Hritik Sharma**
-
-[Live Demo](https://eternity-snowy.vercel.app/) · [GitHub Repository](https://github.com/hritikbytes/eternity)
-
-</div>
+- GitHub: [@hritikbytes](https://github.com/hritikbytes)
+- LinkedIn: [linkedin.com/in/hritiksharma0608](https://www.linkedin.com/in/hritiksharma0608/)
+- Email: hritiksharma.0608@gmail.com
