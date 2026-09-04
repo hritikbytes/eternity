@@ -1,150 +1,71 @@
 # Eternity Matrimony
 
-A full-stack matchmaking web application built with Next.js, Supabase, and PostgreSQL. It allows users to register, build a structured multi-step profile, discover compatible matches through granular filters, and send bi-directional connection requests.
+A matchmaking web application built with Next.js, Supabase, and PostgreSQL.
 
-**Live Demo:** https://eternity-snowy.vercel.app  
-**Status:** Personal project / deployed demo
+Users can create a profile, search for matches using multiple filters, and manage connection requests.
 
----
+**Live:** https://eternity-snowy.vercel.app/
 
-## Preview
+## Screenshots
 
 | Desktop | Mobile |
 |:---:|:---:|
 | <a href="https://eternity-snowy.vercel.app"><img src="./screenshots/home.png" alt="Eternity Matrimony desktop preview" width="100%"></a> | <a href="https://eternity-snowy.vercel.app"><img src="./screenshots/mobile.png" alt="Eternity Matrimony mobile preview" width="100%"></a> |
 
----
+## What I built
 
-## What It Does
+- Multi-step profile setup for personal, professional, and lifestyle information
+- Profile discovery with filters for age, location, education, income, religion, and community
+- Connection requests with pending, accepted, rejected, and cancelled states
+- Supabase authentication and PostgreSQL database
+- Row-level security for database access
+- Admin area for managing users and profiles
+- Cloudinary image uploads
+- Responsive UI for desktop and mobile
 
-- **Multi-Step Profile Onboarding (`/profile/setup`):** 3-stage profile setup (Personal, Professional, Lifestyle) validated with React Hook Form & Zod, supporting Cloudinary image uploads.
-- **Profile Discovery & Search (`/search` & `/dashboard`):** Filter profiles by age range, religion, community, education, income bracket, and location with server-side query construction.
-- **Connection Workflow (`/requests`):** State-machine lifecycle for connection requests (`pending` ➔ `accepted`, `rejected`, or `cancelled`) with mutual authorization guards.
-- **Role-Based Admin Panel (`/admin`):** Overview of registered users, premium tier toggles, user search, and moderation actions restricted to admin role.
-- **Auth & Route Protection:** Email/password authentication via Supabase Auth. Route guarding and cookie session synchronization handled by Next.js 16 request proxy (`src/proxy.ts`).
-- **Landing & Discovery Pages:**
-  - `/` — Hero banner, verified member showcase, couple testimonials, and trust indicators.
-  - `/how-it-works` — 3-step walkthrough and platform verification standards.
-  - `/success-stories` — Story highlights and platform statistics.
+## Things worth looking at
 
----
+### Connection requests
 
-## Implementation Details
+Requests are stored with an explicit status instead of treating a connection as a simple boolean.
 
-### 1. Bidirectional Connection Request Lifecycle
-Rather than treating connections as simple boolean flags, the application models requests through explicit states:
-- `pending`: Request sent; sender can cancel, receiver can accept or reject.
-- `accepted`: Mutual connection established.
-- `rejected` / `cancelled`: Terminal states preventing duplicate pending requests.
+The server-side actions check whether the current user is allowed to perform each transition. For example, the sender can cancel a pending request, while the recipient can accept or reject it.
 
-The server action (`updateInterestStatus`) verifies user ownership before allowing state mutations: only the original sender can cancel a request, and only the recipient can accept or reject it. Furthermore, `sendInterest` checks for reverse requests (`sender_id = receiver AND receiver_id = sender`) in PostgreSQL to prevent duplicate or conflicting invitations.
+Reverse requests are also checked so two users cannot create conflicting requests with each other.
 
-### 2. Dynamic SQL Query Construction & Pattern Sanitization
-The search engine (`searchProfiles`) converts user criteria into Supabase PostgreSQL queries on the server:
-- Converts human age intervals (e.g. 21–30) into exact ISO date-of-birth boundaries using `lte` and `gte`.
-- Escapes special `LIKE` characters (`%`, `_`, `\`) on free-text city inputs to prevent pattern-matching injection.
-- Implements server-side pagination with exact total counts to keep page payloads minimal.
+### Search
 
-### 3. Next.js 16 Request Proxy & Session Sync
-Under Next.js 16, route protection and session refreshing are managed via `src/proxy.ts` using `@supabase/ssr`. Unauthenticated requests to protected prefixes (`/dashboard`, `/profile`, `/search`, `/requests`, `/admin`) are redirected to `/login?next=...` while session cookies are refreshed across response headers without client-side waterfalls or React re-renders.
+The search filters are handled on the server and translated into Supabase queries.
 
----
+Age ranges are converted into date-of-birth boundaries, and the results are paginated instead of loading every profile at once.
 
-## Tech Stack
+### Auth and access control
 
-- **Framework:** Next.js 16 (App Router, Server Actions, Request Proxy)
-- **Frontend:** React 19, TypeScript, Tailwind CSS v4 (OKLCH color system)
-- **UI Primitives:** Base UI / Radix-compatible primitives, Framer Motion, Lucide React, Sonner
-- **Forms & Validation:** React Hook Form, Zod
-- **Backend & Database:** Supabase (Auth, PostgreSQL, Row Level Security)
-- **Media:** Cloudinary (via `next-cloudinary`)
-- **Deployment:** Vercel
+Supabase Auth handles authentication and sessions.
 
----
+Protected routes are checked through `src/proxy.ts`, while database access is further restricted with PostgreSQL Row Level Security.
 
-## Project Structure
+## Stack
 
-```text
-├── public/                 # Static assets, hero visuals, default avatar SVG
-├── screenshots/            # Desktop and mobile UI previews
-├── src/
-│   ├── app/
-│   │   ├── (auth)/         # /login, /signup, /forgot-password
-│   │   ├── (dashboard)/    # /dashboard, /profile, /search, /requests
-│   │   ├── admin/          # Admin stats & user management
-│   │   ├── api/auth/       # Supabase auth callback
-│   │   ├── how-it-works/   # Platform process explainer
-│   │   ├── success-stories/# Testimonials page
-│   │   ├── globals.css     # Tailwind v4 OKLCH theme definitions
-│   │   └── page.tsx        # Public landing page
-│   ├── components/         # Shared navbar, footer, avatar, and UI primitives
-│   ├── features/
-│   │   ├── admin/          # Admin queries & user table
-│   │   ├── auth/           # Auth server actions & forms
-│   │   ├── dashboard/      # Matches grid & profile card
-│   │   ├── interests/      # Connection request lifecycle actions & list
-│   │   ├── landing/        # Hero, showcase, and social proof components
-│   │   ├── profiles/       # Multi-step profile form & profile actions
-│   │   └── search/         # Filter sidebar & dynamic query actions
-│   ├── lib/
-│   │   ├── supabase/       # Browser client, server client, and database types
-│   │   └── utils.ts        # Tailwind merge utility
-│   └── proxy.ts            # Next.js 16 request proxy & route protection
-```
+Next.js · React · TypeScript · Tailwind CSS · Supabase · PostgreSQL · Zod · React Hook Form · Cloudinary
 
----
+## Run locally
 
-## Local Development
+    git clone https://github.com/hritikbytes/eternity.git
+    cd eternity
+    npm install
 
-### 1. Clone & Install
+Create `.env.local` from `.env.example` and add the required Supabase and Cloudinary values.
 
-```bash
-git clone https://github.com/hritikbytes/eternity.git
-cd eternity
-npm install
-```
+Then run:
 
-### 2. Configure Environment Variables
+    npm run dev
 
-Create a `.env.local` file based on `.env.example`:
+For a production build:
 
-```bash
-cp .env.example .env.local
-```
+    npm run build
+    npm run start
 
-Fill in your credentials in `.env.local`:
+## Status
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-upload-preset
-CLOUDINARY_API_KEY=your-cloudinary-api-key
-CLOUDINARY_API_SECRET=your-cloudinary-api-secret
-```
-
-### 3. Run the Dev Server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-To test the production build:
-
-```bash
-npm run build
-npm run start
-```
-
----
-
-## Author
-
-**Hritik Sharma**
-- GitHub: [@hritikbytes](https://github.com/hritikbytes)
-- LinkedIn: [linkedin.com/in/hritiksharma0608](https://www.linkedin.com/in/hritiksharma0608/)
-- Email: hritiksharma.0608@gmail.com
+Personal project / deployed demo.
