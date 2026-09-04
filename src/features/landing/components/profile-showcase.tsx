@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
@@ -76,9 +77,9 @@ export function ProfileShowcase() {
             <p className="text-muted-foreground mb-6">
               Join today to unlock thousands of verified premium profiles matching your criteria.
             </p>
-            <a href="/signup" className="font-semibold text-primary hover:underline">
+            <Link href="/signup" className="font-semibold text-primary hover:underline">
               Create your account →
-            </a>
+            </Link>
           </Card>
         </div>
       </div>

@@ -9,13 +9,10 @@ const PAGE_SIZE = 12;
 export async function searchProfiles(filters: SearchFilters): Promise<{ data: MatchProfile[], count: number }> {
   const supabase = await createClient();
 
-  // 2. Start Base Query
   let query = supabase
     .from('profiles')
     .select('*', { count: 'exact' });
 
-  // 3. Apply Dynamic Filters
-  
   // Age Range -> Date of Birth conversion
   if (filters.ageRange && filters.ageRange.length === 2) {
     const today = new Date();
@@ -56,7 +53,6 @@ export async function searchProfiles(filters: SearchFilters): Promise<{ data: Ma
     query = query.ilike('location_city', `%${sanitizedCity}%`);
   }
 
-  // 4. Pagination
   const from = (filters.page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
   
@@ -88,7 +84,7 @@ export async function searchProfiles(filters: SearchFilters): Promise<{ data: Ma
         age,
         profession: row.profession || "Not specified",
         location: `${row.location_city || ""}${row.location_country ? `, ${row.location_country}` : ""}`.trim() || "Not specified",
-        imageUrl: row.avatar_url ? row.avatar_url.split(',')[0] : "/images/placeholder.jpg",
+        imageUrl: row.avatar_url ? row.avatar_url.split(',')[0] : "/images/default-avatar.svg",
         matchPercentage: Math.floor(Math.random() * (99 - 70 + 1)) + 70,
         isPremium: row.is_premium || false,
         isVerified: true, // Assuming true for now

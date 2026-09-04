@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/features/landing/components/hero-section";
+import { ProfileShowcase } from "@/features/landing/components/profile-showcase";
+import { SuccessStories } from "@/features/landing/components/success-stories";
 import { TrustIndicators } from "@/features/landing/components/trust-indicators";
-
 
 export const metadata: Metadata = {
   title: "Eternity Matrimony - Find Your Perfect Life Partner",
-  description: "Join India's most trusted and elegant matrimonial platform. Connect with verified professionals. AI-powered matching, 100% privacy guaranteed.",
+  description: "Join India's most trusted and elegant matrimonial platform. Connect with verified professionals. Verified profiles, 100% privacy guaranteed.",
   alternates: {
     canonical: "/",
   },
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     url: "/",
     title: "Find Your Perfect Life Partner – Eternity Matrimony",
     description:
-      "Join India's most trusted matrimonial platform. Verified profiles, AI-powered matching, 100% privacy.",
+      "Join India's most trusted matrimonial platform. Verified profiles, curated matches, 100% privacy.",
   },
 };
 
@@ -25,9 +26,9 @@ export default function Home() {
       <Navbar />
 
       <div className="flex-1">
-
         <HeroSection />
-
+        <ProfileShowcase />
+        <SuccessStories />
         <TrustIndicators />
       </div>
 

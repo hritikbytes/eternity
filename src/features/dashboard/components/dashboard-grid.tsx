@@ -85,8 +85,8 @@ export function DashboardGrid() {
         </div>
       ) : profiles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {profiles.map((profile) => (
-            <div key={profile.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: `${parseInt(profile.id) * 100}ms` }}>
+          {profiles.map((profile, index) => (
+            <div key={profile.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: `${index * 60}ms` }}>
               <ProfileCard 
                 profile={profile} 
                 onSkip={handleSkip}

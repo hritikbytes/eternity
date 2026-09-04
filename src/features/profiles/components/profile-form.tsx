@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -85,7 +85,14 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     mode: "onChange",
   });
 
-  const { register, handleSubmit, formState: { errors, isValid }, trigger, setValue, watch } = form;
+  const { register, handleSubmit, formState: { errors, isValid }, trigger, setValue, control } = form;
+
+  const watchedGender = useWatch({ control, name: "gender" });
+  const watchedReligion = useWatch({ control, name: "religion" });
+  const watchedMaritalStatus = useWatch({ control, name: "maritalStatus" });
+  const watchedEducation = useWatch({ control, name: "education" });
+  const watchedIncome = useWatch({ control, name: "income" });
+  const watchedBio = useWatch({ control, name: "bio" });
 
   const processNext = async () => {
     let fieldsToValidate: (keyof ProfileFormValues)[] = [];
@@ -239,7 +246,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                           <X className="h-3 w-3 mr-1" /> Remove
                         </Button>
                       ) : (
-                        <div className="h-7" /> // placeholder to keep alignment
+                        <div className="h-7" aria-hidden="true" />
                       )}
                     </div>
                   );
@@ -263,7 +270,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
               <div className="space-y-2">
                 <Label>Gender</Label>
-                <Select onValueChange={(val) => val && setValue("gender", val as "Male" | "Female" | "Other")} value={watch("gender")}>
+                <Select onValueChange={(val) => val && setValue("gender", val as "Male" | "Female" | "Other")} value={watchedGender}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -277,7 +284,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="religion">Religion</Label>
-                <Select onValueChange={(val) => val && setValue("religion", val as string)} value={watch("religion") || ""}>
+                <Select onValueChange={(val) => val && setValue("religion", val as string)} value={watchedReligion || ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select religion" />
                   </SelectTrigger>
@@ -294,7 +301,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="maritalStatus">Marital Status</Label>
-                <Select onValueChange={(val) => val && setValue("maritalStatus", val as string)} value={watch("maritalStatus") || ""}>
+                <Select onValueChange={(val) => val && setValue("maritalStatus", val as string)} value={watchedMaritalStatus || ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -339,7 +346,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="education">Highest Education</Label>
-                <Select onValueChange={(val) => val && setValue("education", val as string)} value={watch("education") || ""}>
+                <Select onValueChange={(val) => val && setValue("education", val as string)} value={watchedEducation || ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select education level" />
                   </SelectTrigger>
@@ -355,7 +362,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="income">Annual Income</Label>
-                <Select onValueChange={(val) => val && setValue("income", val as string)} value={watch("income") || ""}>
+                <Select onValueChange={(val) => val && setValue("income", val as string)} value={watchedIncome || ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select income range" />
                   </SelectTrigger>
@@ -403,7 +410,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 />
                 <div className="flex justify-between">
                   {errors.bio && <p className="text-xs text-destructive">{errors.bio.message}</p>}
-                  <p className="text-xs text-muted-foreground ml-auto">{watch("bio")?.length || 0}/500</p>
+                  <p className="text-xs text-muted-foreground ml-auto">{watchedBio?.length || 0}/500</p>
                 </div>
               </div>
             </div>

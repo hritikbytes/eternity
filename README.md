@@ -112,7 +112,7 @@ The project uses the Next.js App Router with Supabase handling authentication an
                          │                     │
                          │ Server Components   │
                          │ Server Actions      │
-                         │ Middleware          │
+                         │ Request Proxy (proxy.ts) │
                          └──────────┬──────────┘
                                     │
                     ┌───────────────┼────────────────┐
@@ -284,7 +284,7 @@ The visual direction focuses on creating a premium matchmaking experience while 
 - **Tailwind CSS v4**
 - **Framer Motion**
 - **Lucide React**
-- **Radix UI primitives**
+- **Base UI primitives**
 - **Sonner**
 
 ### Backend & Database
@@ -332,8 +332,9 @@ eternity/
 │   │   └── ...
 │   │
 │   ├── components/
+│   ├── features/
 │   ├── lib/
-│   └── ...
+│   └── proxy.ts
 │
 ├── .env.example
 ├── next.config.*
